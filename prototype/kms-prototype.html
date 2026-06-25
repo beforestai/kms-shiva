@@ -1,0 +1,2723 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Beforest KMS Prototype</title>
+  <style>
+    :root {
+      --ink: #1f2a24;
+      --muted: #66746d;
+      --line: #dce4df;
+      --paper: #fbfcfa;
+      --panel: #ffffff;
+      --leaf: #2f6f4e;
+      --leaf-dark: #24583d;
+      --leaf-soft: #e8f2ec;
+      --clay: #a7623a;
+      --clay-soft: #f6e9df;
+      --gold: #d7a84f;
+      --gold-soft: #fff7e4;
+      --sky: #dcecf1;
+      --sky-ink: #315d6a;
+      --shadow: 0 10px 30px rgba(26, 40, 32, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: #f6f8f5;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+    }
+
+    aside.sidebar {
+      border-right: 1px solid var(--line);
+      background: #ffffff;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-wrap {
+      padding: 0 16px 14px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 8px;
+    }
+
+    .brand {
+      font-size: 14px;
+      font-weight: 650;
+      margin-bottom: 2px;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    nav {
+      display: grid;
+      gap: 2px;
+    }
+
+    .nav-group-label {
+      padding: 12px 16px 4px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 34px;
+      width: 100%;
+      padding: 7px 16px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #4d5b54;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-item:hover {
+      background: #f3f7f4;
+      color: var(--ink);
+    }
+
+    .nav-item.active {
+      background: #f3f7f4;
+      color: var(--ink);
+      border-left: 2px solid #1d9e75;
+      padding-left: 14px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      flex: none;
+      opacity: 0.88;
+    }
+
+    main {
+      overflow: auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .search-wrap {
+      flex: 1;
+    }
+
+    .search-wrap input {
+      height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f4f7f4;
+      font-size: 13px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #55635c;
+    }
+
+    .avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #9fe1cb;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #0b5947;
+    }
+
+    .btn-create {
+      border: 0;
+      border-radius: 10px;
+      background: #1d9e75;
+      color: white;
+      padding: 9px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      font: inherit;
+      font-size: 12px;
+    }
+
+    .btn-create:hover {
+      background: #157a5a;
+    }
+
+    .page-content {
+      padding: 24px;
+    }
+
+    .greeting {
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 20px;
+      letter-spacing: 0;
+      font-weight: 650;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    button, .button {
+      border: 0;
+      border-radius: 8px;
+      background: var(--leaf);
+      color: white;
+      padding: 11px 15px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      font: inherit;
+    }
+
+    button:hover, .button:hover { background: var(--leaf-dark); }
+
+    .secondary {
+      background: #eef3f0;
+      color: #394940;
+    }
+
+    .secondary:hover {
+      background: #dfe8e3;
+    }
+
+    .hidden-control {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .filter-chip {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #ffffff;
+      color: #526059;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .filter-chip:hover {
+      background: #f4f7f4;
+    }
+
+    .filter-chip.active {
+      background: #e1f5ee;
+      border-color: #5dcaa5;
+      color: #0f6e56;
+    }
+
+    .inline-stats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .stat-pill {
+      border-radius: 999px;
+      background: #edf3ef;
+      color: #47554e;
+      font-size: 11px;
+      padding: 5px 10px;
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      padding: 0 12px;
+      font: inherit;
+    }
+
+    input, select {
+      height: 42px;
+    }
+
+    textarea {
+      min-height: 86px;
+      padding-top: 10px;
+      resize: vertical;
+    }
+
+    #summaryInput {
+      min-height: 64px;
+    }
+
+    .rtf-editor {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      overflow: hidden;
+    }
+
+    .rtf-toolbar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 8px;
+      border-bottom: 1px solid var(--line);
+      background: #f7faf8;
+    }
+
+    .rtf-toolbar button {
+      min-width: 34px;
+      height: 32px;
+      padding: 0 8px;
+      display: grid;
+      place-items: center;
+      background: white;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      font-weight: 800;
+    }
+
+    .rtf-toolbar button:hover {
+      background: var(--leaf-soft);
+      color: var(--leaf);
+    }
+
+    .rtf-toolbar svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+
+    .rtf-box {
+      min-height: 160px;
+      padding: 12px;
+      line-height: 1.55;
+      outline: none;
+    }
+
+    .rtf-box:empty::before {
+      content: attr(data-placeholder);
+      color: var(--muted);
+    }
+
+    .rtf-box img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+
+    .rtf-editor.invalid {
+      border-color: var(--clay);
+    }
+
+    .field-error {
+      display: none;
+      color: var(--clay);
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .field-error.visible {
+      display: block;
+    }
+
+    .field-hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .modal-title {
+      margin: 0 0 4px;
+      font-size: 18px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .modal-foot {
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .modal-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .publish-button {
+      background: #1d9e75;
+      color: #ffffff;
+    }
+
+    .publish-button:hover {
+      background: #157a5a;
+    }
+
+    .publish-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #4e5f55;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .info-icon {
+      display: inline-grid;
+      width: 20px;
+      height: 20px;
+      place-items: center;
+      border-radius: 50%;
+      background: #e1f5ee;
+      color: #0f6e56;
+      font-size: 12px;
+      font-weight: 800;
+      flex: none;
+    }
+
+    .file-upload {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px dashed #b9c7c0;
+      border-radius: 8px;
+      background: #fbfcfb;
+      color: #435249;
+      padding: 10px 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .file-upload:hover {
+      border-color: #1d9e75;
+      background: #f4faf7;
+    }
+
+    .file-upload input {
+      display: none;
+    }
+
+    .upload-icon {
+      width: 18px;
+      height: 18px;
+      color: #1d9e75;
+      flex: none;
+    }
+
+    .attached-file-name {
+      display: none;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .attached-file-name.visible {
+      display: block;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      z-index: 10;
+      display: none;
+      max-width: min(360px, calc(100vw - 44px));
+      border: 1px solid #bbd2c4;
+      border-radius: 8px;
+      background: var(--leaf);
+      color: white;
+      padding: 13px 15px;
+      box-shadow: 0 18px 50px rgba(26, 40, 32, 0.22);
+      font-weight: 700;
+    }
+
+    .toast.visible {
+      display: block;
+    }
+
+    .metric, .panel, .doc, .team, .term, .template-card, .ref-card, .activity-card, .page-row {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .home-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 18px;
+      box-shadow: none;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .section-link {
+      border: 0;
+      background: transparent;
+      color: #1d9e75;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .team {
+      min-height: 92px;
+      padding: 12px;
+      background: #ffffff;
+      cursor: pointer;
+      box-shadow: none;
+    }
+
+    .team:hover {
+      border-color: #c7d4cd;
+    }
+
+    .team b {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .team.you-space {
+      border-color: #5dcaa5;
+      background: #e1f5ee;
+    }
+
+    .docs, .terms, .templates {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .doc {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+      box-shadow: none;
+    }
+
+    .doc-actions {
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+    }
+
+    .doc-actions button,
+    .button-link {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .button-link {
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 5px 9px;
+      background: #eef3f0;
+      color: #415047;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .pill.open { background: var(--leaf-soft); color: var(--leaf); }
+    .pill.restricted { background: var(--sky); color: var(--sky-ink); }
+    .pill.confidential { background: var(--clay-soft); color: var(--clay); }
+    .pill.draft { background: var(--gold-soft); color: #815d13; }
+
+    .recent-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .page-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      box-shadow: none;
+    }
+
+    .page-row:hover {
+      border-color: #c7d4cd;
+    }
+
+    .page-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex: none;
+    }
+
+    .tone-bi { background: #e1f5ee; color: #0f6e56; }
+    .tone-bewild { background: #efebff; color: #4e4397; }
+    .tone-hospitality { background: #faeed9; color: #6f4309; }
+    .tone-finance { background: #e7f2fb; color: #1d5588; }
+    .tone-marketing { background: #fceadf; color: #a7623a; }
+    .tone-default { background: #edf3ef; color: #4a5851; }
+
+    .page-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .page-title {
+      font-size: 13px;
+      font-weight: 650;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .page-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .page-tag {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #f3f6f4;
+      color: #56635c;
+      white-space: nowrap;
+      flex: none;
+      align-self: center;
+    }
+
+    .right-col {
+      display: grid;
+      gap: 16px;
+    }
+
+    .ref-card,
+    .activity-card {
+      padding: 16px;
+      box-shadow: none;
+    }
+
+    .ref-label {
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .ref-list,
+    .activity-list {
+      display: grid;
+      gap: 2px;
+    }
+
+    .ref-item,
+    .activity-item {
+      display: flex;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #edf2ee;
+    }
+
+    .ref-item:last-child,
+    .activity-item:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .ref-icon,
+    .act-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: #e1f5ee;
+      color: #0f6e56;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex: none;
+      margin-top: 1px;
+    }
+
+    .ref-item-button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .ref-item-text .label {
+      font-size: 13px;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .ref-item-text .desc,
+    .act-time {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.45;
+    }
+
+    .act-text {
+      font-size: 12px;
+      color: #4f5c56;
+      line-height: 1.45;
+    }
+
+    .act-text strong {
+      color: var(--ink);
+    }
+
+    .collective-page {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 240px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .collective-main {
+      display: grid;
+      gap: 16px;
+    }
+
+    .collective-header,
+    .overview-card,
+    .web-ref-card {
+      background: var(--panel);
+      border: 0.5px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .collective-header {
+      padding: 20px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 10px;
+    }
+
+    .breadcrumb-sep {
+      color: #9aa7a0;
+    }
+
+    .breadcrumb-link {
+      border: 0;
+      background: transparent;
+      color: #526059;
+      padding: 0;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .breadcrumb-link:hover {
+      color: #1d9e75;
+      text-decoration: underline;
+    }
+
+    .collective-title {
+      margin-bottom: 10px;
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    .collective-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .collective-tag {
+      border-radius: 10px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .collective-tag.green {
+      background: #e1f5ee;
+      color: #0f6e56;
+    }
+
+    .collective-tag.gray {
+      background: #f3f6f4;
+      color: #56635c;
+    }
+
+    .collective-updated {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .collective-picker-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .collective-picker-row label {
+      color: #526059;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .collective-picker-row select {
+      width: min(420px, 100%);
+      height: 34px;
+      font-size: 13px;
+    }
+
+    .overview-card {
+      overflow: hidden;
+    }
+
+    .overview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 0.5px solid var(--line);
+    }
+
+    .overview-label,
+    .web-ref-title {
+      color: #526059;
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .overview-button {
+      border-radius: 8px;
+      background: #1d9e75;
+      color: #ffffff;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .overview-button:disabled {
+      background: #dfe8e3;
+      color: #6f7b74;
+      cursor: not-allowed;
+    }
+
+    .overview-body {
+      min-height: 130px;
+      padding: 20px;
+    }
+
+    .overview-placeholder {
+      display: grid;
+      place-items: center;
+      min-height: 90px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .overview-text {
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .overview-loading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #526059;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .pulse-dots {
+      display: flex;
+      gap: 4px;
+      flex: none;
+    }
+
+    .pulse-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #1d9e75;
+      animation: collectivePulse 1.1s ease-in-out infinite;
+    }
+
+    .pulse-dots span:nth-child(2) {
+      animation-delay: 0.18s;
+    }
+
+    .pulse-dots span:nth-child(3) {
+      animation-delay: 0.36s;
+    }
+
+    @keyframes collectivePulse {
+      0%, 80%, 100% { opacity: 0.25; }
+      40% { opacity: 1; }
+    }
+
+    .overview-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 20px;
+      border-top: 0.5px solid var(--line);
+      background: #f7faf8;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .source-badge {
+      display: none;
+      border-radius: 10px;
+      background: #e1f5ee;
+      color: #0f6e56;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .collective-sidebar {
+      position: sticky;
+      top: 76px;
+    }
+
+    .web-ref-card {
+      overflow: hidden;
+    }
+
+    .web-ref-title {
+      padding: 12px 16px;
+      border-bottom: 0.5px solid var(--line);
+      background: #f7faf8;
+    }
+
+    .web-ref-group {
+      padding: 8px 0;
+      border-bottom: 0.5px solid var(--line);
+    }
+
+    .web-ref-group:last-child {
+      border-bottom: 0;
+    }
+
+    .web-ref-group-label {
+      padding: 4px 16px 5px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .web-ref-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 7px 16px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: normal;
+    }
+
+    .web-ref-link:hover {
+      background: #f3f7f4;
+    }
+
+    .web-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex: none;
+    }
+
+    .web-dot.green { background: #1d9e75; }
+    .web-dot.amber { background: #ef9f27; }
+    .web-dot.purple { background: #7f77dd; }
+    .web-dot.coral { background: #d85a30; }
+    .web-dot.blue { background: #378add; }
+
+    .external-icon {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 11px;
+      flex: none;
+    }
+
+    .glossary-page {
+      display: grid;
+      gap: 18px;
+    }
+
+    .glossary-coming,
+    .glossary-terms-card {
+      border: 0.5px solid var(--line);
+      border-radius: 10px;
+      box-shadow: none;
+    }
+
+    .glossary-coming {
+      display: grid;
+      gap: 14px;
+      background: #faeeda;
+      border-color: #ef9f27;
+      color: #633806;
+      padding: 18px;
+    }
+
+    .coming-badge {
+      width: fit-content;
+      border-radius: 999px;
+      background: #fac775;
+      color: #633806;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .glossary-coming h2 {
+      margin: 0;
+      color: #412402;
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    .coming-copy {
+      display: grid;
+      gap: 8px;
+      max-width: 980px;
+      color: #633806;
+      line-height: 1.55;
+    }
+
+    .glossary-steps {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .step-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid #ef9f27;
+      border-radius: 999px;
+      background: #fac775;
+      color: #633806;
+      padding: 7px 11px;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .step-icon {
+      display: inline-grid;
+      width: 18px;
+      height: 18px;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(99, 56, 6, 0.12);
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .step-icon svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+    }
+
+    .step-arrow {
+      color: #854f0b;
+      font-weight: 800;
+    }
+
+    .glossary-terms-card {
+      background: var(--panel);
+      padding: 18px;
+    }
+
+    .glossary-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .glossary-label {
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .terms-count {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .glossary-search {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f4f7f5;
+      color: var(--muted);
+      padding: 11px 12px;
+      font: inherit;
+      margin-bottom: 18px;
+    }
+
+    .glossary-search:disabled {
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
+    .glossary-empty {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      min-height: 220px;
+      align-content: center;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .book-icon {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      place-items: center;
+      border-radius: 50%;
+      background: #eef3f0;
+      color: #1d9e75;
+    }
+
+    .book-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+    }
+
+    .glossary-empty-title {
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .glossary-empty-subtext {
+      max-width: 520px;
+      line-height: 1.5;
+    }
+
+    .template {
+      margin-top: 18px;
+      background: #26342d;
+      color: #f4f7f2;
+      border-radius: 8px;
+      padding: 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      overflow: auto;
+    }
+
+    .term, .template-card {
+      padding: 14px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .empty {
+      display: none;
+      border: 1px dashed #b9c7c0;
+      border-radius: 8px;
+      padding: 22px;
+      text-align: center;
+      color: var(--muted);
+      background: #fbfcfb;
+    }
+
+    .empty.visible {
+      display: block;
+    }
+
+    dialog {
+      width: min(760px, calc(100vw - 28px));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0;
+      box-shadow: 0 24px 70px rgba(26, 40, 32, 0.24);
+    }
+
+    dialog::backdrop {
+      background: rgba(21, 31, 25, 0.34);
+    }
+
+    .modal-head, .modal-foot {
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .modal-head {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-foot {
+      border-top: 1px solid var(--line);
+      justify-content: flex-end;
+    }
+
+    .modal-body {
+      padding: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 6px;
+    }
+
+    .form-row.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      color: #435249;
+      font-weight: 700;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .detail-grid b {
+      color: #44544b;
+    }
+
+    .rich-preview {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfb;
+    }
+
+    .rich-preview h2 {
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+
+    .page-preview {
+      width: min(860px, calc(100vw - 28px));
+    }
+
+    .page-preview-body {
+      display: grid;
+      gap: 16px;
+    }
+
+    .page-preview-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .page-preview-content {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfb;
+      padding: 16px;
+      min-height: 180px;
+      line-height: 1.6;
+    }
+
+    .page-preview-content img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+
+    .page-preview-path {
+      border: 1px dashed #b9c7c0;
+      border-radius: 8px;
+      background: #f7faf8;
+      color: #435249;
+      padding: 10px 12px;
+      font-size: 13px;
+      word-break: break-word;
+    }
+
+    .success-dialog {
+      width: min(420px, calc(100vw - 28px));
+    }
+
+    .success-body {
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+      text-align: center;
+      padding: 24px 22px;
+    }
+
+    .success-icon {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border-radius: 50%;
+      background: #e1f5ee;
+      color: #1d9e75;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .success-title {
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .success-copy {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1080px) {
+      .home-layout { grid-template-columns: 1fr; }
+      .collective-page { grid-template-columns: 1fr; }
+      .collective-sidebar { position: static; }
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      aside.sidebar { display: none; }
+      .page-content,
+      .topbar { padding-left: 18px; padding-right: 18px; }
+      .team-grid { grid-template-columns: 1fr 1fr; }
+      .topbar { flex-wrap: wrap; }
+    }
+
+    @media (max-width: 620px) {
+      .team-grid, .doc, .form-grid, .split, .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .doc-actions {
+        justify-items: start;
+      }
+
+      .topbar-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand-wrap">
+        <div class="brand">Beforest KMS</div>
+        <div class="subtle">Organization knowledge hub</div>
+      </div>
+      <nav aria-label="Primary navigation">
+        <div class="nav-group-label">Navigate</div>
+        <button class="nav-item active" data-view="home"><span class="dot"></span>Knowledge Home</button>
+        <button class="nav-item" data-view="teams"><span class="dot"></span>Team Spaces</button>
+        <button class="nav-item" data-view="documents"><span class="dot"></span>All Pages</button>
+        <button class="nav-item" data-view="recent"><span class="dot"></span>Recently Updated</button>
+        <div class="nav-group-label">Shared Knowledge Spaces</div>
+        <button class="nav-item" data-view="collective"><span class="dot"></span>Collective-wise Information</button>
+        <button class="nav-item" data-view="glossary"><span class="dot"></span>Glossary</button>
+        <button class="nav-item" data-view="templates"><span class="dot"></span>Templates</button>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div class="search-wrap">
+          <input id="search" type="search" placeholder="Search pages, teams, topics, keywords..." />
+        </div>
+        <div class="topbar-right">
+          <div class="user-chip"><span class="avatar">DM</span><span>Demo User - Marketing</span></div>
+          <button id="uploadButton" class="btn-create">+ Create Page</button>
+        </div>
+      </div>
+
+      <div class="page-content">
+        <select id="teamFilter" class="hidden-control" aria-hidden="true" tabindex="-1">
+          <option value="all">All teams</option>
+        </select>
+
+        <section id="home" class="view active">
+          <div class="greeting">
+            <h1>Good morning, Demo</h1>
+            <div class="subtle">Here is what is happening across Beforest's knowledge base today.</div>
+            <div class="inline-stats">
+              <span class="stat-pill"><strong id="teamCount">13</strong> teams</span>
+              <span class="stat-pill"><strong id="docCount">0</strong> pages</span>
+              <span class="stat-pill">4 shared spaces</span>
+            </div>
+          </div>
+
+          <div class="filter-row" aria-label="Quick filters">
+            <button type="button" class="filter-chip active" data-filter-type="all" data-filter-value="all">All teams</button>
+            <button type="button" class="filter-chip" data-filter-type="team" data-filter-value="Marketing">My team</button>
+            <button type="button" class="filter-chip" data-filter-type="category" data-filter-value="SOP">SOPs</button>
+            <button type="button" class="filter-chip" data-filter-type="category" data-filter-value="FAQ">FAQs</button>
+            <button type="button" class="filter-chip" data-filter-type="category" data-filter-value="Reports">Reports</button>
+          </div>
+
+          <section class="home-layout">
+            <div>
+              <section class="section-header">
+                <h2>Recently updated</h2>
+                <button type="button" class="section-link" data-view-link="recent">View all</button>
+              </section>
+              <div class="recent-list" id="homeRecentList"></div>
+              <div class="empty" id="homeEmpty">No matching pages found.</div>
+
+              <section class="section-header" style="margin-top: 20px;">
+                <h2>Team knowledge spaces</h2>
+                <button type="button" class="section-link" data-view-link="teams">See all teams</button>
+              </section>
+              <div id="homeTeams" class="team-grid"></div>
+            </div>
+
+            <aside class="right-col">
+              <section class="ref-card">
+                <div class="ref-label">Common References</div>
+                <div class="ref-list">
+                  <div class="ref-item">
+                    <div class="ref-icon">F</div>
+                    <div class="ref-item-text">
+                      <div class="label">FAQs</div>
+                      <div class="desc">Common question-and-answer content teams can reuse.</div>
+                    </div>
+                  </div>
+                  <div class="ref-item">
+                    <div class="ref-icon">C</div>
+                    <button type="button" class="ref-item-button" data-view-link="collective">
+                      <div class="ref-item-text">
+                        <div class="label">Collective-wise Information</div>
+                        <div class="desc">Collective details, operational context, and shared references.</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <section class="activity-card">
+                <div class="ref-label">Recent Activity</div>
+                <div class="activity-list" id="activityList"></div>
+              </section>
+            </aside>
+          </section>
+        </section>
+
+        <section id="recent" class="view">
+          <section class="panel">
+            <div class="section-header">
+              <h2>Recently Updated</h2>
+              <button type="button" class="section-link" data-view-link="documents">Open all pages</button>
+            </div>
+            <div class="subtle">Most recently updated knowledge pages across all teams.</div>
+          </section>
+          <div class="recent-list" id="recentDocs"></div>
+          <div class="empty" id="recentEmpty">No matching pages found.</div>
+        </section>
+
+        <section id="teams" class="view">
+            <section class="panel">
+              <h2>All Pilot Team Spaces</h2>
+              <div id="allTeams" class="team-grid"></div>
+            </section>
+        </section>
+
+        <section id="documents" class="view">
+          <section class="panel">
+            <h2>All Pages</h2>
+            <div class="subtle">This local demo shows how teams create pages and find knowledge. New pages are saved in this browser only.</div>
+          </section>
+          <div class="docs" id="allDocs"></div>
+          <div class="empty" id="allEmpty">No matching pages found.</div>
+        </section>
+
+        <section id="shared" class="view">
+          <section class="panel">
+            <h2>Shared Knowledge Spaces</h2>
+            <div class="subtle">Common reference spaces that are useful across teams.</div>
+          </section>
+          <div class="docs">
+            <article class="doc">
+              <div>
+                <h3>Collective-wise Information</h3>
+                <div class="subtle">Source-backed collective webpages and web references.</div>
+              </div>
+              <div class="doc-actions">
+                <button type="button" class="secondary" data-view-link="collective">Open</button>
+              </div>
+            </article>
+            <article class="doc">
+              <div>
+                <h3>Templates</h3>
+                <div class="subtle">Page details and creation guidelines for teams.</div>
+              </div>
+              <div class="doc-actions">
+                <button type="button" class="secondary" data-view-link="templates">Open</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="collective" class="view">
+          <div class="collective-page">
+            <div class="collective-main">
+              <section class="collective-header">
+                <div class="breadcrumb">
+                  <button type="button" class="breadcrumb-link" data-view-link="home">Knowledge home</button>
+                  <span class="breadcrumb-sep">&gt;</span>
+                  <button type="button" class="breadcrumb-link" data-view-link="shared">Shared knowledge spaces</button>
+                  <span class="breadcrumb-sep">&gt;</span>
+                  <span>Collective-wise Information</span>
+                </div>
+                <div class="collective-title">Collective-wise Information</div>
+                <div class="collective-meta">
+                  <span class="collective-tag green">Collective Webpages</span>
+                  <span class="collective-tag gray">Web reference</span>
+                  <span class="collective-updated">Last synced: Jun 18, 2026</span>
+                </div>
+              </section>
+
+              <div class="collective-picker-row">
+                <label for="collectivePagePicker">Preview a page:</label>
+                <select id="collectivePagePicker">
+                  <optgroup label="Collective Webpages">
+                    <option value="https://beforest.co/farming-collectives/">What is a Collective?</option>
+                    <option value="https://beforest.co/the-poomaale-estate/">Poomaale 1.0</option>
+                    <option value="https://beforest.co/poomaale-2-0-collective/">Poomaale 2.0</option>
+                    <option value="https://beforest.co/hyderabad-collective/">Hyderabad Collective</option>
+                    <option value="https://beforest.co/co-forest/">Hammiyala Collective</option>
+                    <option value="https://beforest.co/the-bhopal-collective/">Bhopal Collective</option>
+                    <option value="https://beforest.co/the-mumbai-collective/">Mumbai Collective</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <section class="overview-card">
+                <div class="overview-head">
+                  <div class="overview-label">Page overview</div>
+                  <button type="button" class="overview-button" id="generateCollectiveOverview">Generate overview</button>
+                </div>
+                <div class="overview-body" id="collectiveOverviewBody">
+                  <div class="overview-placeholder">Select a page and click Generate overview to pull an accurate summary from the live Beforest page.</div>
+                </div>
+                <div class="overview-footer">
+                  <span>Overview is generated by reading the actual Beforest webpage - not invented.</span>
+                  <span class="source-badge" id="collectiveSourceBadge">Source verified</span>
+                </div>
+              </section>
+            </div>
+
+            <aside class="collective-sidebar">
+              <section class="web-ref-card">
+                <div class="web-ref-title">Web references</div>
+                <div id="collectiveWebReferences"></div>
+              </section>
+            </aside>
+          </div>
+        </section>
+
+        <section id="glossary" class="view">
+          <div class="glossary-page">
+            <section class="glossary-coming">
+              <div class="coming-badge">Coming soon</div>
+              <h2>AI-powered glossary</h2>
+              <div class="coming-copy">
+                <div>Glossary terms will be automatically built by an agent that reads new KMS pages, identifies Beforest-specific terms, and generates accurate definitions from live source pages.</div>
+                <div>No manual entry needed &mdash; the agent keeps the glossary updated as knowledge grows.</div>
+              </div>
+              <div class="glossary-steps" aria-label="Glossary automation steps">
+                <span class="step-chip">
+                  <span class="step-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <path d="M14 2v6h6" />
+                    </svg>
+                  </span>
+                  New page saved
+                </span>
+                <span class="step-arrow">&gt;</span>
+                <span class="step-chip">
+                  <span class="step-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="7" />
+                      <path d="m16 16 4 4" />
+                      <path d="M8 11h6" />
+                    </svg>
+                  </span>
+                  Agent extracts terms
+                </span>
+                <span class="step-arrow">&gt;</span>
+                <span class="step-chip">
+                  <span class="step-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  </span>
+                  Definition published
+                </span>
+              </div>
+            </section>
+
+            <section class="glossary-terms-card">
+              <div class="glossary-card-head">
+                <div class="glossary-label">Glossary terms</div>
+                <div class="terms-count">0 terms</div>
+              </div>
+              <input class="glossary-search" type="search" placeholder="Search terms..." disabled />
+              <div class="glossary-empty">
+                <div class="book-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />
+                    <path d="M8 6h8" />
+                    <path d="M8 10h6" />
+                  </svg>
+                </div>
+                <div class="glossary-empty-title">No glossary terms yet</div>
+                <div class="glossary-empty-subtext">Terms will appear here automatically once the agent is active and pages are added to the KMS.</div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="templates" class="view">
+          <section class="panel">
+            <h2>Templates</h2>
+            <div class="subtle">Templates keep pages consistent across teams and prepare content for future search and chat citations.</div>
+          </section>
+          <div class="templates">
+            <article class="template-card">
+              <h3>Page Details Template</h3>
+              <div class="subtle">Use these details when creating any knowledge page in the KMS.</div>
+              <div class="template">
+title:<br />
+team_owner:<br />
+category:<br />
+topic:<br />
+summary:<br />
+rich_text_content:<br />
+keywords:<br />
+related_teams:<br />
+source_link:<br />
+last_updated:
+              </div>
+            </article>
+            <article class="template-card">
+              <h3>Page Creation Guidelines</h3>
+              <div class="subtle">Create a page directly when your team owns the topic. Attach files only when they add useful supporting context.</div>
+              <div class="meta">
+                <span class="pill">No approval needed</span>
+                <span class="pill">Clear title</span>
+                <span class="pill">Owner maintains updates</span>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="uploadDialog">
+    <form id="uploadForm" method="dialog">
+      <div class="modal-head">
+        <div>
+          <h2 class="modal-title">Create knowledge page</h2>
+          <div class="subtle">Page details are saved locally in this browser.</div>
+        </div>
+        <button type="button" class="secondary" id="closeUpload">Close</button>
+      </div>
+      <div class="modal-body">
+        <input id="categoryInput" type="hidden" value="Knowledge Page" />
+        <div class="form-grid">
+          <div class="form-row">
+            <label for="titleInput">Title</label>
+            <input id="titleInput" required placeholder="Give your page a clear, specific title" />
+          </div>
+          <div class="form-row">
+            <label for="teamInput">Team owner</label>
+            <select id="teamInput" required></select>
+          </div>
+          <div class="form-row full">
+            <label for="summaryInput">Topic / summary</label>
+            <textarea id="summaryInput" rows="2" required placeholder="One sentence describing what this page covers and who it's for. This is what other teams see when searching."></textarea>
+            <div class="field-hint">Keep it short - this appears in search results.</div>
+          </div>
+          <div class="form-row full">
+            <label for="contentInput">Page content, optional</label>
+            <div class="rtf-editor">
+              <div class="rtf-toolbar" aria-label="Rich text formatting">
+                <button type="button" data-command="formatBlock" data-value="H2" title="Heading">H</button>
+                <button type="button" data-command="bold" title="Bold">B</button>
+                <button type="button" data-command="italic" title="Italic"><i>I</i></button>
+                <button type="button" data-command="insertUnorderedList" title="Bulleted list">UL</button>
+                <button type="button" data-command="insertOrderedList" title="Numbered list">OL</button>
+                <button type="button" id="tableButton" title="Insert table" aria-label="Insert table">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="16" rx="2" />
+                    <path d="M3 10h18" />
+                    <path d="M9 4v16" />
+                    <path d="M15 4v16" />
+                  </svg>
+                </button>
+                <button type="button" id="linkButton" title="Add link" aria-label="Add link">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1" />
+                    <path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.1-1.1" />
+                  </svg>
+                </button>
+                <button type="button" id="imageButton" title="Add image" aria-label="Add image">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="m21 15-5-5L5 21" />
+                  </svg>
+                </button>
+              </div>
+              <input id="imageUploadInput" class="hidden-control" type="file" accept="image/*" tabindex="-1" aria-hidden="true" />
+              <div id="contentInput" class="rtf-box" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Write page content here only if needed."></div>
+            </div>
+            <div class="field-hint">Optional. Use this when you want to create a page without attaching a document.</div>
+            <div id="contentError" class="field-error">Page content is optional.</div>
+          </div>
+          <div class="form-row">
+            <label for="tagsInput">Keywords</label>
+            <input id="tagsInput" placeholder="e.g. guest, check-in, bungalow" />
+            <div class="field-hint">Comma separated. Helps with search.</div>
+          </div>
+          <div class="form-row">
+            <label for="relatedInput">Related teams</label>
+            <input id="relatedInput" placeholder="e.g. Marketing, Operations" />
+            <div class="field-hint">Teams that should know about this page.</div>
+          </div>
+          <div class="form-row">
+            <label for="sourceInput">Source link, optional</label>
+            <input id="sourceInput" type="url" placeholder="https://..." />
+          </div>
+          <div class="form-row">
+            <label for="fileInput">Supporting file, optional</label>
+            <label class="file-upload" for="fileInput">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <path d="M17 8 12 3 7 8" />
+                <path d="M12 3v12" />
+              </svg>
+              <span>Choose file to attach</span>
+              <input id="fileInput" type="file" />
+            </label>
+            <div id="attachedFileName" class="attached-file-name"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <div class="publish-note"><span class="info-icon">i</span>No approval needed &mdash; page is published immediately.</div>
+        <div class="modal-actions">
+          <button type="submit" class="secondary" id="saveDraft">Save draft</button>
+          <button type="submit" class="publish-button" id="publishPage">Publish page</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="detailDialog">
+    <div class="modal-head">
+      <div>
+        <h2 id="detailTitle">Page details</h2>
+        <div class="subtle" id="detailSubtitle"></div>
+      </div>
+      <button type="button" class="secondary" id="closeDetail">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-grid" id="detailGrid"></div>
+    </div>
+  </dialog>
+
+  <dialog id="pageDialog" class="page-preview">
+    <div class="modal-head">
+      <div>
+        <h2 id="pagePreviewTitle">Page preview</h2>
+        <div class="subtle" id="pagePreviewSubtitle"></div>
+      </div>
+      <button type="button" class="secondary" id="closePagePreview">Close</button>
+    </div>
+    <div class="modal-body page-preview-body">
+      <div id="pagePreviewSummary" class="subtle"></div>
+      <div id="pagePreviewMeta" class="page-preview-meta"></div>
+      <div id="pagePreviewContent" class="page-preview-content"></div>
+      <div>
+        <label>Future citable page path</label>
+        <div id="pagePreviewPath" class="page-preview-path"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="successDialog" class="success-dialog">
+    <div class="success-body">
+      <div class="success-icon" aria-hidden="true">✓</div>
+      <div class="success-title" id="successTitle">Document uploaded successfully.</div>
+      <div class="success-copy" id="successCopy">Your document has been added to the KMS demo and is available in All Pages.</div>
+      <button type="button" id="closeSuccess">OK</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const teams = [
+      ["Business Intelligence", "Dashboards, reports, metrics definitions"],
+      ["Be Wild", "Product pages, field notes, Be Wild experiences, and hospitality-adjacent learning content"],
+      ["Collective Design & Support", "Collective design and process references"],
+      ["Community Engagement", "Member communication, events, community notes"],
+      ["Admin", "Internal admin references and forms"],
+      ["HR", "Policies, onboarding, people processes"],
+      ["Finance", "Finance policies, reimbursement, reporting workflows"],
+      ["Collective Operations", "Operational playbooks and collective workflows"],
+      ["Hospitality", "Stays & hospitality pages, guest journeys, and SOPs"],
+      ["Regolith", "Landscape, ecology, and technical knowledge"],
+      ["Marketing", "Brand, content, campaigns, reusable copy"],
+      ["Content & Storytelling", "Narratives, stories, editorial content, and knowledge pages"],
+      ["Legal & Liaisoning", "Legal references, compliance documents, liaisoning"]
+    ];
+
+    const createPageTeamOwners = [
+      "Business Intelligence",
+      "Be Wild",
+      "Collective Design & Support",
+      "Community Engagement",
+      "Admin",
+      "HR",
+      "Finance",
+      "Collective Operations",
+      "Hospitality",
+      "Marketing"
+    ];
+
+    const seedDocuments = [
+      {
+        id: "doc-001",
+        title: "Monthly Collective Metrics Guide",
+        slug: "monthly-collective-metrics-guide",
+        team: "Business Intelligence",
+        category: "Reports",
+        summary: "Explains common BI metrics used by other teams when reading collective reports.",
+        content: "Overview of monthly collective metrics, how teams should read them, and where to use each metric.",
+        fileType: "Text Page",
+        fileName: "monthly-collective-metrics-guide",
+        tags: ["metrics", "collectives", "reports"],
+        relatedTeams: ["CDS", "Operations", "Marketing"],
+        sourceLink: "https://example.com/metrics",
+        updated: "2026-06-05"
+      },
+      {
+        id: "doc-002",
+        title: "Collective Onboarding Reference",
+        slug: "collective-onboarding-reference",
+        team: "Collective Design & Support",
+        category: "Collective-wise Information",
+        summary: "Shared collective reference explaining how a new collective moves from design to support.",
+        content: "Reference page for collective stages, handoffs, operational context, and responsibilities during collective onboarding.",
+        fileType: "PDF",
+        fileName: "collective-onboarding-reference.pdf",
+        tags: ["onboarding", "collective design", "support"],
+        relatedTeams: ["Community Engagement", "Operations"],
+        sourceLink: "",
+        updated: "2026-06-03"
+      },
+      {
+        id: "doc-003",
+        title: "Guest Stay Information Pack",
+        slug: "guest-stay-information-pack",
+        team: "Hospitality",
+        category: "SOP",
+        summary: "Hospitality details that Marketing and Operations can refer to when answering stay-related questions.",
+        content: "Guest stay information covering arrival, stay experience, common questions, and team handoffs.",
+        fileType: "PDF",
+        fileName: "guest-stay-information-pack.pdf",
+        tags: ["guest", "stay", "hospitality"],
+        relatedTeams: ["Marketing", "Collective Operations"],
+        sourceLink: "",
+        updated: "2026-05-18"
+      },
+      {
+        id: "doc-004",
+        title: "Land Documentation Checklist",
+        slug: "land-documentation-checklist",
+        team: "Legal & Liaisoning",
+        category: "Checklist",
+        summary: "Internal reference for documents required during land and liaisoning workflows.",
+        content: "Checklist-style page for land documentation steps, dependencies, and internal references.",
+        fileType: "Spreadsheet",
+        fileName: "land-documentation-checklist.xlsx",
+        tags: ["legal", "land", "checklist"],
+        relatedTeams: ["Admin", "Collective Operations"],
+        sourceLink: "",
+        updated: "2026-04-22"
+      },
+      {
+        id: "doc-005",
+        title: "Beforest Tone And Reusable Copy",
+        slug: "beforest-tone-and-reusable-copy",
+        team: "Marketing",
+        category: "Brand Content",
+        summary: "Reusable public-facing copy snippets for website pages, FAQs, newsletters, and campaign material.",
+        content: "Reusable language for Beforest tone, common explanations, and public-facing content snippets.",
+        fileType: "Text Page",
+        fileName: "beforest-tone-and-reusable-copy",
+        tags: ["brand", "copy", "website"],
+        relatedTeams: ["Hospitality", "Be Wild", "Community Engagement"],
+        sourceLink: "",
+        updated: "2026-06-10"
+      },
+      {
+        id: "doc-006",
+        title: "Reimbursement Process",
+        slug: "reimbursement-process",
+        team: "Finance",
+        category: "Policy",
+        summary: "Steps, required fields, and timelines for team reimbursement requests.",
+        content: "Finance process page describing reimbursement steps, required proofs, timelines, and support points.",
+        fileType: "Document",
+        fileName: "reimbursement-process.docx",
+        tags: ["finance", "reimbursement", "policy"],
+        relatedTeams: ["All teams"],
+        sourceLink: "",
+        updated: "2026-05-28"
+      }
+    ];
+
+    const collectiveReferenceGroups = [
+      {
+        label: "Reference",
+        color: "green",
+        links: [
+          ["Beforest main site", "https://beforest.co/"]
+        ]
+      },
+      {
+        label: "Collective Webpages",
+        color: "green",
+        links: [
+          ["What is a Collective?", "https://beforest.co/farming-collectives/"],
+          ["Poomaale 1.0", "https://beforest.co/the-poomaale-estate/"],
+          ["Poomaale 2.0", "https://beforest.co/poomaale-2-0-collective/"],
+          ["Hyderabad Collective", "https://beforest.co/hyderabad-collective/"],
+          ["Hammiyala Collective", "https://beforest.co/co-forest/"],
+          ["Bhopal Collective", "https://beforest.co/the-bhopal-collective/"],
+          ["Mumbai Collective", "https://beforest.co/the-mumbai-collective/"]
+        ]
+      },
+      {
+        label: "Experiences",
+        color: "amber",
+        links: [
+          ["Beforest Experiences", "https://experiences.beforest.co/"],
+          ["All Experiences", "https://experiences.beforest.co/experiences"]
+        ]
+      },
+      {
+        label: "10 percent lifestyle",
+        color: "amber",
+        links: [
+          ["10percent", "https://10percent.beforest.co/"]
+        ]
+      },
+      {
+        label: "Hospitality",
+        color: "purple",
+        links: [
+          ["Blyton Bungalow", "https://hospitality.beforest.co/"]
+        ]
+      },
+      {
+        label: "Bewild",
+        color: "coral",
+        links: [
+          ["Bewild main site", "https://bewild.life/"],
+          ["Collections Page", "https://bewild.life/collections"],
+          ["Collections ALL", "https://bewild.life/collections/all"]
+        ]
+      },
+      {
+        label: "Beforest",
+        color: "blue",
+        links: [
+          ["About us", "https://beforest.co/about-us/"],
+          ["Blog", "https://beforest.co/blogs/"],
+          ["FAQ", "https://beforest.co/faq/"]
+        ]
+      }
+    ];
+
+    const storageKey = "beforest-kms-demo-documents";
+    const overviewStorageKey = "beforest-kms-collective-overviews";
+    const search = document.querySelector("#search");
+    const teamFilter = document.querySelector("#teamFilter");
+    const homeRecentList = document.querySelector("#homeRecentList");
+    const recentDocs = document.querySelector("#recentDocs");
+    const allDocs = document.querySelector("#allDocs");
+    const homeEmpty = document.querySelector("#homeEmpty");
+    const recentEmpty = document.querySelector("#recentEmpty");
+    const allEmpty = document.querySelector("#allEmpty");
+    const uploadDialog = document.querySelector("#uploadDialog");
+    const detailDialog = document.querySelector("#detailDialog");
+    const pageDialog = document.querySelector("#pageDialog");
+    const successDialog = document.querySelector("#successDialog");
+    const activityList = document.querySelector("#activityList");
+    const collectivePagePicker = document.querySelector("#collectivePagePicker");
+    const collectiveOverviewBody = document.querySelector("#collectiveOverviewBody");
+    const collectiveSourceBadge = document.querySelector("#collectiveSourceBadge");
+    const generateCollectiveOverview = document.querySelector("#generateCollectiveOverview");
+    const collectiveWebReferences = document.querySelector("#collectiveWebReferences");
+    let quickFilter = { type: "all", value: "all" };
+    let pendingSupportingFile = null;
+
+    function getCustomDocuments() {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCustomDocuments(documents) {
+      localStorage.setItem(storageKey, JSON.stringify(documents));
+    }
+
+    function getOverviewCache() {
+      try {
+        return JSON.parse(localStorage.getItem(overviewStorageKey)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveOverviewCache(cache) {
+      localStorage.setItem(overviewStorageKey, JSON.stringify(cache));
+    }
+
+    function getDocuments() {
+      return [...seedDocuments, ...getCustomDocuments()];
+    }
+
+    function normalize(value) {
+      return String(value || "").toLowerCase();
+    }
+
+    function formatDateLabel(dateValue) {
+      const date = new Date(`${dateValue}T00:00:00`);
+      return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    }
+
+    function getSortedDocuments() {
+      return getDocuments().slice().sort((a, b) => b.updated.localeCompare(a.updated));
+    }
+
+    function slugify(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+    }
+
+    function matchesFilters(doc) {
+      const query = normalize(search.value);
+      const haystack = normalize([
+        doc.title,
+        doc.team,
+        doc.category,
+        doc.summary,
+        doc.content,
+        doc.fileType,
+        doc.fileName,
+        doc.tags.join(" "),
+        doc.relatedTeams.join(" ")
+      ].join(" "));
+
+      const teamMatch = teamFilter.value === "all" || doc.team === teamFilter.value;
+      let quickMatch = true;
+      if (quickFilter.type === "team") {
+        quickMatch = doc.team === quickFilter.value;
+      } else if (quickFilter.type === "category") {
+        quickMatch = doc.category === quickFilter.value;
+      }
+      return haystack.includes(query) && teamMatch && quickMatch;
+    }
+
+    function pageToneClass(team) {
+      const slug = slugify(team);
+      const map = {
+        "business-intelligence": "tone-bi",
+        "be-wild": "tone-bewild",
+        "hospitality": "tone-hospitality",
+        "finance": "tone-finance",
+        "marketing": "tone-marketing"
+      };
+      return map[slug] || "tone-default";
+    }
+
+    function initialsFromTeam(team) {
+      return String(team || "")
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part[0])
+        .join("")
+        .toUpperCase();
+    }
+
+    function recentRow(doc) {
+      const article = document.createElement("article");
+      article.className = "page-row";
+      article.innerHTML = `
+        <div class="page-icon ${pageToneClass(doc.team)}">${initialsFromTeam(doc.team)}</div>
+        <div class="page-meta">
+          <div class="page-title">${doc.title}</div>
+          <div class="page-sub">${doc.team} · Updated ${formatDateLabel(doc.updated)}</div>
+        </div>
+        <div class="page-tag">${doc.category}</div>
+      `;
+      article.querySelector(".page-sub").textContent = `${doc.team} - Updated ${formatDateLabel(doc.updated)}`;
+      article.addEventListener("click", () => showDetails(doc));
+      return article;
+    }
+
+    function documentCard(doc) {
+      const article = document.createElement("article");
+      article.className = "doc";
+      article.innerHTML = `
+        <div>
+          <h3>${doc.title}</h3>
+          <div class="subtle">${doc.summary}</div>
+          <div class="meta">
+            <span class="pill">${doc.team}</span>
+            <span class="pill">${doc.fileType}</span>
+          </div>
+        </div>
+        <div class="doc-actions">
+          <span class="subtle">Updated ${doc.updated}</span>
+          <button type="button" class="secondary open-page-button">Open page</button>
+          <button type="button" class="secondary details-button">View details</button>
+        </div>
+      `;
+      article.querySelector(".open-page-button").addEventListener("click", () => openPage(doc));
+      article.querySelector(".details-button").addEventListener("click", () => showDetails(doc));
+      return article;
+    }
+
+    function renderDocuments() {
+      const documents = getSortedDocuments();
+      const filtered = documents.filter(matchesFilters);
+      homeRecentList.replaceChildren(...filtered.slice(0, 4).map(recentRow));
+      recentDocs.replaceChildren(...filtered.map(recentRow));
+      allDocs.replaceChildren(...filtered.map(documentCard));
+      homeEmpty.classList.toggle("visible", filtered.length === 0);
+      recentEmpty.classList.toggle("visible", filtered.length === 0);
+      allEmpty.classList.toggle("visible", filtered.length === 0);
+      document.querySelector("#docCount").textContent = documents.length;
+    }
+
+    function teamCard(name, description, count) {
+      const card = document.createElement("article");
+      card.className = `team${name === "Marketing" ? " you-space" : ""}`;
+      card.innerHTML = `<b>${name}</b><span class="subtle">${description}</span><div class="meta"><span class="pill">${count} pages</span></div>`;
+      card.addEventListener("click", () => {
+        teamFilter.value = name;
+        quickFilter = { type: "all", value: "all" };
+        syncQuickFilterUI();
+        setView("documents");
+        renderDocuments();
+      });
+      return card;
+    }
+
+    function renderTeams() {
+      const documents = getDocuments();
+      const teamData = teams.map(([name, description]) => {
+        const count = documents.filter((doc) => doc.team === name).length;
+        return { name, description, count };
+      });
+
+      document.querySelector("#homeTeams").replaceChildren(
+        ...teamData.slice(0, 9).map((team) => teamCard(team.name, team.description, team.count))
+      );
+      document.querySelector("#allTeams").replaceChildren(
+        ...teamData.map((team) => teamCard(team.name, team.description, team.count))
+      );
+      document.querySelector("#teamCount").textContent = teams.length;
+    }
+
+    function renderActivity() {
+      const items = getSortedDocuments().slice(0, 4).map((doc) => {
+        const article = document.createElement("article");
+        article.className = "activity-item";
+        article.innerHTML = `
+          <div class="act-dot">•</div>
+          <div>
+            <div class="act-text"><strong>${doc.team}</strong> updated <strong>${doc.title}</strong></div>
+            <div class="act-time">${formatDateLabel(doc.updated)}</div>
+          </div>
+        `;
+        article.querySelector(".act-dot").textContent = "+";
+        return article;
+      });
+      activityList.replaceChildren(...items);
+    }
+
+    function renderCollectiveReferences() {
+      const groups = collectiveReferenceGroups.map((group) => {
+        const section = document.createElement("section");
+        section.className = "web-ref-group";
+        const links = group.links.map(([name, url]) => `
+          <button type="button" class="web-ref-link" data-url="${url}">
+            <span class="web-dot ${group.color}"></span>
+            <span>${name}</span>
+            <span class="external-icon">open</span>
+          </button>
+        `).join("");
+        section.innerHTML = `
+          <div class="web-ref-group-label">${group.label}</div>
+          ${links}
+        `;
+        section.querySelectorAll(".web-ref-link").forEach((button) => {
+          button.addEventListener("click", () => window.open(button.dataset.url, "_blank", "noopener"));
+        });
+        return section;
+      });
+      collectiveWebReferences.replaceChildren(...groups);
+    }
+
+    function selectedCollectiveOption() {
+      const option = collectivePagePicker.options[collectivePagePicker.selectedIndex];
+      return {
+        name: option.textContent,
+        url: option.value
+      };
+    }
+
+    function setOverviewPlaceholder() {
+      collectiveOverviewBody.innerHTML = `<div class="overview-placeholder">Select a page and click Generate overview to pull an accurate summary from the live Beforest page.</div>`;
+      collectiveSourceBadge.style.display = "none";
+      generateCollectiveOverview.disabled = false;
+      generateCollectiveOverview.textContent = "Generate overview";
+    }
+
+    function showCachedOverview(url, overview) {
+      const overviewText = document.createElement("div");
+      overviewText.className = "overview-text";
+      overviewText.textContent = overview;
+      collectiveOverviewBody.replaceChildren(overviewText);
+      collectiveSourceBadge.textContent = `Source verified: ${url}`;
+      collectiveSourceBadge.style.display = "inline-block";
+      generateCollectiveOverview.disabled = false;
+      generateCollectiveOverview.textContent = "Generate overview";
+    }
+
+    function handleCollectivePickerChange() {
+      const { url } = selectedCollectiveOption();
+      const cache = getOverviewCache();
+      if (cache[url]) {
+        showCachedOverview(url, cache[url]);
+        return;
+      }
+      setOverviewPlaceholder();
+    }
+
+    function getOpenAIKey() {
+      return window.OPENAI_API_KEY || localStorage.getItem("openai_api_key") || "";
+    }
+
+    async function requestCollectiveOverview() {
+      const { name, url } = selectedCollectiveOption();
+      const cache = getOverviewCache();
+      if (cache[url]) {
+        showCachedOverview(url, cache[url]);
+        return;
+      }
+
+      const apiKey = getOpenAIKey();
+      if (!apiKey) {
+        collectiveOverviewBody.innerHTML = `<div class="overview-placeholder">Add an OpenAI API key to window.OPENAI_API_KEY or localStorage.openai_api_key to generate a live overview for this static demo.</div>`;
+        collectiveSourceBadge.style.display = "none";
+        return;
+      }
+
+      generateCollectiveOverview.disabled = true;
+      generateCollectiveOverview.textContent = "Generating...";
+      collectiveSourceBadge.style.display = "none";
+      collectiveOverviewBody.innerHTML = `
+        <div class="overview-loading">
+          <div class="pulse-dots"><span></span><span></span><span></span></div>
+          <span>Reading ${url} and generating overview...</span>
+        </div>
+      `;
+
+      const userMessage = `You are a knowledge base assistant for Beforest, a sustainable land regeneration company. Read this webpage: ${url}. Write a 3-5 sentence overview for an internal knowledge page. Write only what is on the page - nothing invented. Plain language, third person. For collectives: mention what it is, where it is, and what makes it distinct. Start directly with the overview, no preamble.`;
+
+      try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "gpt-5.5",
+            max_tokens: 1000,
+            tools: [{ type: "web_search_preview" }],
+            messages: [
+              {
+                role: "user",
+                content: userMessage
+              }
+            ]
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed for ${name}`);
+        }
+
+        const data = await response.json();
+        const overview = data.choices?.[0]?.message?.content?.trim();
+        if (!overview) {
+          throw new Error("No overview returned");
+        }
+
+        cache[url] = overview;
+        saveOverviewCache(cache);
+        showCachedOverview(url, overview);
+      } catch {
+        collectiveOverviewBody.innerHTML = `<div class="overview-placeholder">Could not generate the overview. Check the API key or try again.</div>`;
+        collectiveSourceBadge.style.display = "none";
+        generateCollectiveOverview.disabled = false;
+        generateCollectiveOverview.textContent = "Generate overview";
+      }
+    }
+
+    function syncQuickFilterUI() {
+      document.querySelectorAll(".filter-chip").forEach((chip) => {
+        const isActive =
+          quickFilter.type === chip.dataset.filterType &&
+          quickFilter.value === chip.dataset.filterValue;
+        if (quickFilter.type === "all" && chip.dataset.filterType === "all") {
+          chip.classList.toggle("active", true);
+        } else {
+          chip.classList.toggle("active", isActive);
+        }
+      });
+    }
+
+    function fillSelects() {
+      const teamOptions = teams.map(([name]) => {
+        const option = document.createElement("option");
+        option.textContent = name;
+        option.value = name;
+        return option;
+      });
+      const createPageTeamOptions = createPageTeamOwners.map((name) => {
+        const option = document.createElement("option");
+        option.textContent = name;
+        option.value = name;
+        return option;
+      });
+      teamFilter.append(...teamOptions.map((option) => option.cloneNode(true)));
+      document.querySelector("#teamInput").append(...createPageTeamOptions);
+    }
+
+    function setView(viewId) {
+      document.querySelectorAll(".view").forEach((view) => {
+        view.classList.toggle("active", view.id === viewId);
+      });
+      document.querySelectorAll(".nav-item").forEach((item) => {
+        item.classList.toggle("active", item.dataset.view === viewId);
+      });
+    }
+
+    function pagePathFor(doc) {
+      return `/kms/${slugify(doc.team)}/${doc.slug || doc.id}`;
+    }
+
+    function openPagePreview(doc) {
+      document.querySelector("#pagePreviewTitle").textContent = doc.title;
+      document.querySelector("#pagePreviewSubtitle").textContent = `${doc.team} - ${doc.category}`;
+      document.querySelector("#pagePreviewSummary").textContent = doc.summary;
+      document.querySelector("#pagePreviewMeta").innerHTML = `
+        <span class="pill">${doc.team}</span>
+        <span class="pill">${doc.fileType}</span>
+        <span class="pill">Updated ${doc.updated}</span>
+      `;
+      document.querySelector("#pagePreviewContent").innerHTML = doc.content || `<span class="subtle">No page content added. Use the supporting file for the full document context.</span>`;
+      document.querySelector("#pagePreviewPath").textContent = `${pagePathFor(doc)} (future live KMS route)`;
+      pageDialog.showModal();
+    }
+
+    function openPage(doc) {
+      if (doc.fileUrl) {
+        window.open(doc.fileUrl, "_blank", "noopener");
+        return;
+      }
+      openPagePreview(doc);
+    }
+
+    function showDetails(doc) {
+      document.querySelector("#detailTitle").textContent = doc.title;
+      document.querySelector("#detailSubtitle").textContent = `${doc.team} - ${doc.category}`;
+      document.querySelector("#detailGrid").innerHTML = `
+        <b>Summary</b><span>${doc.summary}</span>
+        <b>Page content</b><span class="rich-preview">${doc.content || "No rich text content added yet"}</span>
+        <b>Future citable page path</b><span>${pagePathFor(doc)}</span>
+        <b>Supporting file</b><span>${doc.fileName || "No file attached"} (${doc.fileType})</span>
+        <b>Keywords</b><span>${doc.tags.join(", ") || "None"}</span>
+        <b>Related teams</b><span>${doc.relatedTeams.join(", ") || "None"}</span>
+        <b>Source link</b><span>${doc.sourceLink || "Not provided"}</span>
+        <b>Last updated</b><span>${doc.updated}</span>
+      `;
+      detailDialog.showModal();
+    }
+
+    function fileTypeFromName(name) {
+      const extension = (name.split(".").pop() || "").toLowerCase();
+      const map = {
+        md: "Text Page",
+        pdf: "PDF",
+        doc: "Document",
+        docx: "Document",
+        xls: "Spreadsheet",
+        xlsx: "Spreadsheet",
+        csv: "Spreadsheet",
+        ppt: "Deck",
+        pptx: "Deck",
+        png: "Image",
+        jpg: "Image",
+        jpeg: "Image"
+      };
+      return map[extension] || "File";
+    }
+
+    function showToast(message) {
+      const toast = document.querySelector("#toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      window.clearTimeout(showToast.timeoutId);
+      showToast.timeoutId = window.setTimeout(() => {
+        toast.classList.remove("visible");
+      }, 2600);
+    }
+
+    function showSuccessPopup(title, copy) {
+      document.querySelector("#successTitle").textContent = title;
+      document.querySelector("#successCopy").textContent = copy;
+      successDialog.showModal();
+    }
+
+    function setContentError(isVisible) {
+      document.querySelector(".rtf-editor").classList.toggle("invalid", isVisible);
+      document.querySelector("#contentError").classList.toggle("visible", isVisible);
+    }
+
+    function handleUpload(event) {
+      event.preventDefault();
+      const file = document.querySelector("#fileInput").files[0];
+      const contentInput = document.querySelector("#contentInput");
+      const richContent = contentInput.innerHTML.trim();
+      setContentError(false);
+      const today = new Date().toISOString().slice(0, 10);
+      const doc = {
+        id: `local-${Date.now()}`,
+        title: document.querySelector("#titleInput").value.trim(),
+        slug: slugify(document.querySelector("#titleInput").value),
+        team: document.querySelector("#teamInput").value,
+        category: document.querySelector("#categoryInput").value,
+        summary: document.querySelector("#summaryInput").value.trim(),
+        content: richContent,
+        fileType: file ? fileTypeFromName(file.name) : "Text Page",
+        fileName: file ? file.name : "No supporting file attached",
+        fileUrl: pendingSupportingFile ? pendingSupportingFile.url : "",
+        tags: document.querySelector("#tagsInput").value.split(",").map((tag) => tag.trim()).filter(Boolean),
+        relatedTeams: document.querySelector("#relatedInput").value.split(",").map((team) => team.trim()).filter(Boolean),
+        sourceLink: document.querySelector("#sourceInput").value.trim(),
+        updated: today
+      };
+
+      const customDocuments = getCustomDocuments();
+      customDocuments.unshift(doc);
+      saveCustomDocuments(customDocuments);
+      event.target.reset();
+      contentInput.innerHTML = "";
+      document.querySelector("#attachedFileName").textContent = "";
+      document.querySelector("#attachedFileName").classList.remove("visible");
+      pendingSupportingFile = null;
+      uploadDialog.close();
+      renderTeams();
+      renderDocuments();
+      renderActivity();
+      setView("documents");
+      showToast(event.submitter && event.submitter.id === "saveDraft" ? "Draft saved." : "Page published.");
+    }
+
+    document.querySelectorAll(".nav-item").forEach((item) => {
+      item.addEventListener("click", () => setView(item.dataset.view));
+    });
+
+    document.querySelectorAll("[data-view-link]").forEach((item) => {
+      item.addEventListener("click", () => setView(item.dataset.viewLink));
+    });
+
+    document.querySelectorAll(".filter-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        teamFilter.value = "all";
+        quickFilter = { type: chip.dataset.filterType, value: chip.dataset.filterValue };
+        syncQuickFilterUI();
+        renderDocuments();
+      });
+    });
+
+    [search, teamFilter].forEach((control) => {
+      control.addEventListener("input", renderDocuments);
+      control.addEventListener("change", renderDocuments);
+    });
+
+    document.querySelector("#uploadButton").addEventListener("click", () => uploadDialog.showModal());
+    document.querySelector("#closeUpload").addEventListener("click", () => uploadDialog.close());
+    document.querySelector("#closeDetail").addEventListener("click", () => detailDialog.close());
+    document.querySelector("#closePagePreview").addEventListener("click", () => pageDialog.close());
+    document.querySelector("#closeSuccess").addEventListener("click", () => successDialog.close());
+    document.querySelector("#uploadForm").addEventListener("submit", handleUpload);
+    document.querySelector("#fileInput").addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      pendingSupportingFile = {
+        name: file.name,
+        url: URL.createObjectURL(file)
+      };
+      document.querySelector("#attachedFileName").textContent = `Attached: ${file.name}`;
+      document.querySelector("#attachedFileName").classList.add("visible");
+      showSuccessPopup("Document uploaded successfully.", "Your document has been attached to this page. Add any remaining details, then save or publish.");
+    });
+    collectivePagePicker.addEventListener("change", handleCollectivePickerChange);
+    generateCollectiveOverview.addEventListener("click", requestCollectiveOverview);
+    document.querySelector("#contentInput").addEventListener("input", () => {
+      if (document.querySelector("#contentInput").textContent.trim()) {
+        setContentError(false);
+      }
+    });
+    document.querySelectorAll(".rtf-toolbar button[data-command]").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelector("#contentInput").focus();
+        document.execCommand(button.dataset.command, false, button.dataset.value || null);
+      });
+    });
+    document.querySelector("#linkButton").addEventListener("click", () => {
+      const url = prompt("Enter link URL");
+      if (!url) return;
+      document.querySelector("#contentInput").focus();
+      document.execCommand("createLink", false, url);
+    });
+    document.querySelector("#tableButton").addEventListener("click", () => {
+      document.querySelector("#contentInput").focus();
+      document.execCommand("insertHTML", false, "<table border='1' cellpadding='6' cellspacing='0'><tbody><tr><td>Column 1</td><td>Column 2</td></tr><tr><td></td><td></td></tr></tbody></table>");
+    });
+    document.querySelector("#imageButton").addEventListener("click", () => {
+      document.querySelector("#imageUploadInput").click();
+    });
+    document.querySelector("#imageUploadInput").addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        document.querySelector("#contentInput").focus();
+        document.execCommand("insertHTML", false, `<img src="${reader.result}" alt="${file.name}" />`);
+        setContentError(false);
+        event.target.value = "";
+      });
+      reader.readAsDataURL(file);
+    });
+
+    fillSelects();
+    syncQuickFilterUI();
+    renderTeams();
+    renderDocuments();
+    renderActivity();
+    renderCollectiveReferences();
+    handleCollectivePickerChange();
+  </script>
+</body>
+</html>
